@@ -11,7 +11,15 @@
   <!-- ── Form Section ── -->
   <div id="form-section" class="form-page">
     <div class="form-container">
-      <h1>AutoBill</h1>
+      <div class="form-header">
+        <h1>AutoBill</h1>
+        <div class="config-actions">
+          <label for="import-input" class="btn-secondary">Import Config</label>
+          <input type="file" id="import-input" accept=".json" style="display:none">
+          <button type="button" id="export-btn" class="btn-secondary">Export Config</button>
+        </div>
+      </div>
+      <p id="saved-notice" class="saved-notice" style="display:none">&#10003; Progress auto-saved</p>
 
       <form id="invoice-form">
 
@@ -207,6 +215,8 @@
   </div>
 
   <script>
+    const STORAGE_KEY = "autobill_config";
+
     const DEFAULTS = {
       receipt_number:   "IN0001",
       receipt_date:     "01-01-2025",
@@ -225,20 +235,85 @@
       favour_text:      "SAMPLE BROADBAND (SAMPLE TELECOM PVT LTD) GSTIN 27AABCS1234C1ZX",
     };
 
-    // Pre-fill form with defaults
-    Object.entries(DEFAULTS).forEach(([key, val]) => {
-      const el = document.getElementById(key);
-      if (el) el.value = val;
+    // ── Populate form fields from a config object ──
+    function applyConfig(config) {
+      Object.keys(DEFAULTS).forEach(key => {
+        const el = document.getElementById(key);
+        if (el) el.value = key in config ? config[key] : DEFAULTS[key];
+      });
+    }
+
+    // ── Read current form values ──
+    function readForm() {
+      const data = {};
+      Object.keys(DEFAULTS).forEach(key => {
+        const el = document.getElementById(key);
+        if (el) data[key] = el.value;
+      });
+      return data;
+    }
+
+    // ── localStorage: save & load ──
+    function saveToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(readForm()));
+        const notice = document.getElementById("saved-notice");
+        notice.style.display = "block";
+        clearTimeout(notice._timer);
+        notice._timer = setTimeout(() => notice.style.display = "none", 2000);
+      } catch (_) {}
+    }
+
+    function loadFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (_) { return null; }
+    }
+
+    // ── Export config as JSON file ──
+    document.getElementById("export-btn").addEventListener("click", function () {
+      const data = readForm();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "autobill-config.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
     });
 
-    // Populate all [data-field] spans for a given field name
+    // ── Import config from JSON file ──
+    document.getElementById("import-input").addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (ev) {
+        try {
+          const config = JSON.parse(ev.target.result);
+          applyConfig(config);
+          saveToStorage();
+        } catch (_) {
+          alert("Invalid config file.");
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = ""; // reset so same file can be re-imported
+    });
+
+    // ── Auto-save on any input change ──
+    document.getElementById("invoice-form").addEventListener("input", saveToStorage);
+
+    // ── On page load: restore saved config or use defaults ──
+    applyConfig(loadFromStorage() || DEFAULTS);
+
+    // ── Populate all [data-field] spans ──
     function setField(key, val) {
       document.querySelectorAll(`[data-field="${key}"]`).forEach(el => {
         el.innerHTML = val.replace(/\n/g, "<br>");
       });
     }
 
-    // Form submit → populate + show invoice
+    // ── Form submit → show invoice ──
     document.getElementById("invoice-form").addEventListener("submit", function (e) {
       e.preventDefault();
       Object.keys(DEFAULTS).forEach(key => {
@@ -250,7 +325,7 @@
       window.scrollTo(0, 0);
     });
 
-    // Edit button → go back to form
+    // ── Edit button → back to form ──
     document.getElementById("edit-btn").addEventListener("click", function (e) {
       e.preventDefault();
       document.getElementById("invoice-section").style.display = "none";
