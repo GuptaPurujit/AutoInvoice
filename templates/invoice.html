@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internet Invoice – {{ bill.receipt_number }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="invoice-page">
+
+  <div class="invoice-wrapper">
+
+    <!-- Title -->
+    <h1 class="invoice-title">Internet Invoice</h1>
+    <hr class="divider">
+
+    <!-- Row 1: Logo | Receipt Details -->
+    <div class="two-col">
+      <div class="col-left logo-block">
+        <div class="logo-img-crop">
+          <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Infinity Broadband">
+        </div>
+      </div>
+
+      <div class="col-right receipt-block">
+        <p class="section-header">Receipt Details</p>
+        <p><span class="label">Receipt Number:</span> {{ bill.receipt_number }}</p>
+        <p><span class="label">Date:</span> {{ bill.receipt_date }}</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Row 2: Billed To | Provider Details -->
+    <div class="two-col">
+      <div class="col-left billed-to">
+        <p class="section-header">Billed To,</p>
+        <p class="customer-name">{{ bill.customer_name }}</p>
+        <p><span class="address-label">Customer Address:</span></p>
+        <p class="customer-address">{{ bill.customer_address | replace('\n', '<br>') | safe }}</p>
+        <p><span class="account-label">Bill Account Number:</span><br>{{ bill.account_number }}</p>
+      </div>
+
+      <div class="col-right provider-block">
+        <p class="section-header">Internet Provider Details</p>
+        <p>{{ bill.company | replace('\n', '<br>') | safe }}</p>
+        <p>{{ bill.gstin }}</p>
+        <p>{{ bill.company_address | replace('\n', '<br>') | safe }}</p>
+        <p>Billing Cycle: {{ bill.billing_cycle }}</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Row 3: Payment Method | Receipt Date -->
+    <div class="two-col info-row">
+      <div class="col-left">
+        <span class="info-label">Payment Method</span>
+        <span>{{ bill.payment_method }}</span>
+      </div>
+      <div class="col-right">
+        <span class="info-label">Receipt Date</span>
+        <span>{{ bill.receipt_date }}</span>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Service Plan Summary -->
+    <div class="plan-summary-header">Service Plan Summary</div>
+    <table class="plan-table">
+      <thead>
+        <tr>
+          <th>Plan Speed</th>
+          <th>Plan Package</th>
+          <th>Plan Validity</th>
+          <th>Plan Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ bill.plan_speed }}</td>
+          <td>{{ bill.plan_package }}</td>
+          <td>{{ bill.plan_validity }}</td>
+          <td>&#8377; {{ bill.plan_amount }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="total-row">
+      Total: &#8377; {{ bill.plan_amount }}
+    </div>
+
+    <hr class="divider">
+
+    <!-- Footers -->
+    <p class="footer-bold">
+      ALL PAYMENTS TO BE MADE IN FAVOUR OF {{ bill.favour_text }}
+    </p>
+
+    <p class="footer-regular">
+      THIS IS A COMPUTER GENERATED INVOICE AND DOES<br>NOT REQUIRE ANY SIGNATURE
+    </p>
+
+    <!-- Print / Back controls (hidden in print) -->
+    <div class="print-controls no-print">
+      <a href="/">&#8592; Edit Details</a>
+      <button onclick="window.print()">Print / Save as PDF</button>
+    </div>
+
+  </div>
+
+</body>
+</html>

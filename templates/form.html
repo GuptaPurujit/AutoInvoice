@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="form-page">
+
+  <div class="form-container">
+    <h1>Invoice Generator</h1>
+
+    <form method="POST" action="/generate">
+
+      <fieldset>
+        <legend>Receipt Details</legend>
+        <div class="field-row">
+          <label for="receipt_number">Receipt Number</label>
+          <input type="text" id="receipt_number" name="receipt_number" value="{{ defaults.receipt_number }}">
+        </div>
+        <div class="field-row">
+          <label for="receipt_date">Receipt Date (DD-MM-YYYY)</label>
+          <input type="text" id="receipt_date" name="receipt_date" value="{{ defaults.receipt_date }}">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Customer Details</legend>
+        <div class="field-row">
+          <label for="customer_name">Customer Name</label>
+          <input type="text" id="customer_name" name="customer_name" value="{{ defaults.customer_name }}">
+        </div>
+        <div class="field-row">
+          <label for="customer_address">Customer Address</label>
+          <textarea id="customer_address" name="customer_address" rows="4">{{ defaults.customer_address }}</textarea>
+        </div>
+        <div class="field-row">
+          <label for="account_number">Bill Account Number</label>
+          <input type="text" id="account_number" name="account_number" value="{{ defaults.account_number }}">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Internet Provider Details</legend>
+        <div class="field-row">
+          <label for="company">Company Name</label>
+          <textarea id="company" name="company" rows="2">{{ defaults.company }}</textarea>
+        </div>
+        <div class="field-row">
+          <label for="gstin">GSTIN</label>
+          <input type="text" id="gstin" name="gstin" value="{{ defaults.gstin }}">
+        </div>
+        <div class="field-row">
+          <label for="company_address">Company Address</label>
+          <textarea id="company_address" name="company_address" rows="2">{{ defaults.company_address }}</textarea>
+        </div>
+        <div class="field-row">
+          <label for="billing_cycle">Billing Cycle</label>
+          <input type="text" id="billing_cycle" name="billing_cycle" value="{{ defaults.billing_cycle }}">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Payment Info</legend>
+        <div class="field-row">
+          <label for="payment_method">Payment Method</label>
+          <input type="text" id="payment_method" name="payment_method" value="{{ defaults.payment_method }}">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Plan Details</legend>
+        <div class="field-row">
+          <label for="plan_speed">Plan Speed</label>
+          <input type="text" id="plan_speed" name="plan_speed" value="{{ defaults.plan_speed }}">
+        </div>
+        <div class="field-row">
+          <label for="plan_package">Plan Package</label>
+          <input type="text" id="plan_package" name="plan_package" value="{{ defaults.plan_package }}">
+        </div>
+        <div class="field-row">
+          <label for="plan_validity">Plan Validity</label>
+          <input type="text" id="plan_validity" name="plan_validity" value="{{ defaults.plan_validity }}">
+        </div>
+        <div class="field-row">
+          <label for="plan_amount">Plan Amount (₹)</label>
+          <input type="number" id="plan_amount" name="plan_amount" step="0.01" value="{{ defaults.plan_amount }}">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Footer</legend>
+        <div class="field-row">
+          <label for="favour_text">Payment Favour Text</label>
+          <input type="text" id="favour_text" name="favour_text" value="{{ defaults.favour_text }}">
+        </div>
+      </fieldset>
+
+      <div class="form-actions">
+        <button type="submit">Generate Invoice</button>
+      </div>
+
+    </form>
+  </div>
+
+</body>
+</html>
