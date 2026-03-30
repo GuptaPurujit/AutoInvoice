@@ -1,31 +1,42 @@
-name: Docker Image CI
+name: CI / Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
 
-  build:
-
+  build-docker:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: |
-        docker build . --file Dockerfile --tag wifi-bill-generator:latest
-        docker run --name wifi-bill-generator wifi-bill-generator # Run the container to generate static files
-        docker cp wifi-bill-generator:/app/_site ./_site # Copy the generated static files to the runner environment
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build . --file Dockerfile --tag autobill:latest
 
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: './_site' # The directory containing the static files to deploy
-
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
-
+  deploy:
+    needs: build-docker
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
